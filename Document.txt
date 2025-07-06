@@ -1,0 +1,8 @@
+Name: LoveFindr
+Objective: TinderLike Bot
+
+Goals:
+1. Let u make a profile
+2. Use interest info to find ppl that match those interests
+3. Let ppl chat between them
+4. Mutual likes
