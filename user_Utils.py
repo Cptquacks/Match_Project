@@ -2,8 +2,12 @@ import json
 
 STD_Set : dict = {
     'name' : '',
-    'like' : [],
+    'usrn' : None,
     'info' : '',
+
+    'pics' : [],
+    'like' : [],
+
     'gender' : None,
     'prefer' : None
 }
