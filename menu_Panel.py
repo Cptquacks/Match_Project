@@ -32,5 +32,8 @@ class menu_Panel:
         return optionsPanel
     
     def is_option(self, message : Message) -> bool:
-        
+        for element in  self.options:
+            if (element[0] == message.text):
+                print(element[0])
+
         return False

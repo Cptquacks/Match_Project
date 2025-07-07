@@ -1,19 +1,20 @@
 import telebot, os, json
-import user_Utils, menu_Panel
+import user_Utils
 
 from user_Utils import STD_Set
 
 from telebot.types import Message
+from telebot.types import BotCommand
 
 bot : telebot.TeleBot = telebot.TeleBot('6402990173:AAFty3Z7TuSzuDdjkmoModOn3J8kMAhFM-I')
-std_F : str = 'MarkdownV2'
+STDF : str = 'MarkdownV2'
 
 @bot.message_handler(commands = ['start'])
 def handle_Start(message : Message) -> None:
     bot.send_message(message.chat.id, f'Welcome to love findr')
 
     if user_Utils.has_user(message.chat.id):
-        bot.send_message(message.chat.id, f'User alredy created by the name *{user_Utils.get_user(message.chat.id)['name']}*', parse_mode = std_F)
+        bot.send_message(message.chat.id, f'User alredy created by the name *{user_Utils.get_user(message.chat.id)['name']}*', parse_mode = STDF)
         return
     
     data_Set : dict = STD_Set
@@ -25,11 +26,28 @@ def handle_Start(message : Message) -> None:
 
         data_Set['name'] = message.text
         user_Utils.create_user(message.chat.id, data_Set)
-        bot.send_message(message.chat.id, f'User created by the name *{user_Utils.get_user(message.chat.id)['name']}*', parse_mode = std_F)
+        bot.send_message(message.chat.id, f'User created by the name *{user_Utils.get_user(message.chat.id)['name']}*', parse_mode = STDF)
         
 
     get : Message = bot.send_message(message.chat.id, f'Let\'s create your account, tell us your name (or alias)')
     bot.register_next_step_handler(get, set_Name)
+
+@bot.message_handler(content_types = ['text'])
+def handle_Any(message : Message) -> None:
+    if not user_Utils.has_user(message.chat.id):
+        return
+    
+    bot.send_message(chat_id = message.chat.id, text = f'Profile')
+    bot.set_my_commands(commands = [
+        BotCommand('start', 'starts the bot'),
+        BotCommand('search', 'searches for profiles'),
+        BotCommand('profile', 'opens profile settings'),
+        BotCommand('settings', 'opens settings'),
+    ])
+
+
+
+
 
 os.system('clear')
 print("DEBUG START")
