@@ -11,18 +11,15 @@ def create_user(user_ID : str, user_Data : dict) -> None:
     if check_user(user_ID) :
         return
     
-    print("- Fetching database")
     new_DB : dict = get_DB()
     new_DB[user_ID] = user_Data
 
-    print("* calling update method")
     update_DB(new_DB)
 
 
 
 def read_user(user_ID : str) -> dict: #Returns entire userform
     if not check_user(user_ID) :
-        print('[!] User did not pass verification')
         return {}
     
     try:
