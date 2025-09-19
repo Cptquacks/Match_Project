@@ -24,7 +24,7 @@ def read_user(user_ID : int) -> dict: #Returns entire userform
         return {}
     
     try:
-        return get_DB()[user_ID]
+        return get_DB()[f'{user_ID}']
     
     except KeyError:
         pass
@@ -54,7 +54,7 @@ def delete_user(user_ID : int) -> None:
         return
     
     new_DB : dict = get_DB()
-    new_DB.pop(user_ID)
+    new_DB.pop(f'{user_ID}')
 
     update_DB(new_DB)
 
@@ -73,7 +73,7 @@ def update_DB(new_Data : dict) -> None:
         json.dump(new_Data, JSON_Load)
 
 def check_user(user_ID : int) -> bool:
-    if get_DB().__contains__(user_ID) : 
+    if get_DB().__contains__(f'{user_ID}') : 
         return True
     
     return False

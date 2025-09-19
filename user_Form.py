@@ -1,6 +1,6 @@
 import json, telebot
 from user_DB import STD_UserForm
-from user_DB import create_user
+from user_DB import create_user, read_user
 
 from telebot.types import Message
 from telebot.types import ReplyKeyboardMarkup
@@ -115,4 +115,9 @@ def set_picture(message : Message) -> None:
     except IndexError:
         pass
 
+    except TypeError:
+        pass
+
     bot.delete_message(chat_id = message.chat.id, message_id = tar_MSG.id)
+    create_user(message.chat.id, new_user)
+    bot.send_message(chat_id = message.chat.id, text = f'Su usuario ha sido creado bajo el nombre *{read_user(message.chat.id)['Name']}*', parse_mode = 'MarkdownV2')

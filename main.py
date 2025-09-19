@@ -23,10 +23,14 @@ def handle_Start(message : Message) -> None:
         bot.send_message(chat_id = message.chat.id, text = f'Hola {message.chat.first_name} *bienvenido a UCItas*', parse_mode = STD_F)
         user_Form.bot = bot
         user_Form.get_name(message)
+        
         return
 
 
-
+bot.set_my_commands([
+    BotCommand('start', 'Pone en marcha el bot'),
+    BotCommand('profile', 'Accede a la informacion de perfil')
+])
 
 os.system('clear')
 print("DEBUG START")
