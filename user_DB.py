@@ -1,17 +1,64 @@
 import json
+STD_UserForm : dict = {
+    "Photo" : None,
+    "Name" : None,
+    "Info" : None,
+    "Age" : None
+}
 
 #CRUD System
-def create_user(user_ID : str) -> None:
-    pass
+def create_user(user_ID : str, user_Data : dict) -> None:
+    if check_user(user_ID) :
+        return
+    
+    print("- Fetching database")
+    new_DB : dict = get_DB()
+    new_DB[user_ID] = user_Data
 
-def read_user(user_ID : str) -> dict:
+    print("* calling update method")
+    update_DB(new_DB)
+
+
+
+def read_user(user_ID : str) -> dict: #Returns entire userform
+    if not check_user(user_ID) :
+        print('[!] User did not pass verification')
+        return {}
+    
+    try:
+        return get_DB()[user_ID]
+    
+    except KeyError:
+        pass
+
     return {}
 
-def update_user(user_ID : str) -> None:
-    pass
+def update_user(user_ID : str, new_Data : dict) -> None:
+    if not check_user(user_ID) :
+        return
+
+    user_Data : dict = read_user(user_ID)
+    
+    if user_Data == new_Data:
+        return
+    
+    for key, value in user_Data.items():
+        if (new_Data[key] != value) :
+            user_Data[key] = new_Data[key]
+
+    new_DB : dict = get_DB()
+    new_DB[user_ID] = user_Data
+
+    update_DB(new_DB)
 
 def delete_user(user_ID : str) -> None:
-    pass
+    if not check_user(user_ID) :
+        return
+    
+    new_DB : dict = get_DB()
+    new_DB.pop(user_ID)
+
+    update_DB(new_DB)
 
 #DB methods
 def get_DB() -> dict:
@@ -20,6 +67,15 @@ def get_DB() -> dict:
     
     return {}
 
+def update_DB(new_Data : dict) -> None:
+    if get_DB == new_Data:
+        return
+    
+    with open(file = 'Data/user_DB.json', mode = 'w', encoding = 'UTF-8') as JSON_Load:
+        json.dump(new_Data, JSON_Load)
+
 def check_user(user_ID : str) -> bool:
+    if get_DB().__contains__(user_ID) : 
+        return True
     
     return False
