@@ -1,9 +1,12 @@
 import json
 STD_UserForm : dict = {
+    "Baned" : True,
     "Photo" : None,
     "Name" : None,
+    "Age" : None,
     "Info" : None,
-    "Age" : None
+    "Gender" : None,
+    "Preference" : None
 }
 
 #CRUD System

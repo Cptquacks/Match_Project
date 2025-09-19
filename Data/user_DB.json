@@ -3,7 +3,9 @@
         "Baned" : true,
         "Photo" : null,
         "Name" : null,
+        "Age" : null,
         "Info" : null,
-        "Age" : null
+        "Gender" : null,
+        "Preference" : null
     }
 }

@@ -17,7 +17,7 @@ HTM_F : str = 'HTML'
 
 
 
-@bot.message_handler(commands = ['start'])
+@bot.message_handler(commands = ['start'], chat_types = ['private'])
 def handle_Start(message : Message) -> None:
     if not user_DB.check_user(message.chat.id) :
         bot.send_message(chat_id = message.chat.id, text = f'Hola {message.chat.first_name} *bienvenido a UCItas*', parse_mode = STD_F)
