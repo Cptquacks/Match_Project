@@ -72,6 +72,12 @@ def update_DB(new_Data : dict) -> None:
     with open(file = 'Data/user_DB.json', mode = 'w', encoding = 'UTF-8') as JSON_Load:
         json.dump(new_Data, JSON_Load)
 
+def check_ban(user_ID : int) -> bool:
+    if check_user(user_ID) and read_user(user_ID)['Banned']:
+        return True
+    
+    return False
+
 def check_user(user_ID : int) -> bool:
     if get_DB().__contains__(f'{user_ID}') : 
         return True
