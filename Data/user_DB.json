@@ -1,1 +1,8 @@
-{"1508493048": {"name": "Furokawa", "pics": [], "like": [], "info": "", "gender": null, "prefer": null}}
+{
+    "0" : {
+        "Photo" : null,
+        "Name" : null,
+        "Info" : null,
+        "Age" : null
+    }
+}
