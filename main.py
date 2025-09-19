@@ -1,5 +1,5 @@
 import os, telebot
-import user_DB
+import user_DB, user_Form
 
 from telebot.types import Message
 from telebot.types import BotCommand
@@ -19,8 +19,11 @@ HTM_F : str = 'HTML'
 
 @bot.message_handler(commands = ['start'])
 def handle_Start(message : Message) -> None:
-    bot.send_message(message.chat.id, f'Test')
-
+    if not user_DB.check_user(message.chat.id) :
+        bot.send_message(chat_id = message.chat.id, text = f'Hola {message.chat.first_name} *bienvenido a UCItas*', parse_mode = STD_F)
+        user_Form.bot = bot
+        user_Form.get_name(message)
+        return
 
 
 

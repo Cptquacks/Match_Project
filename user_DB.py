@@ -7,7 +7,7 @@ STD_UserForm : dict = {
 }
 
 #CRUD System
-def create_user(user_ID : str, user_Data : dict) -> None:
+def create_user(user_ID : int, user_Data : dict) -> None:
     if check_user(user_ID) :
         return
     
@@ -16,9 +16,7 @@ def create_user(user_ID : str, user_Data : dict) -> None:
 
     update_DB(new_DB)
 
-
-
-def read_user(user_ID : str) -> dict: #Returns entire userform
+def read_user(user_ID : int) -> dict: #Returns entire userform
     if not check_user(user_ID) :
         return {}
     
@@ -30,7 +28,7 @@ def read_user(user_ID : str) -> dict: #Returns entire userform
 
     return {}
 
-def update_user(user_ID : str, new_Data : dict) -> None:
+def update_user(user_ID : int, new_Data : dict) -> None:
     if not check_user(user_ID) :
         return
 
@@ -48,7 +46,7 @@ def update_user(user_ID : str, new_Data : dict) -> None:
 
     update_DB(new_DB)
 
-def delete_user(user_ID : str) -> None:
+def delete_user(user_ID : int) -> None:
     if not check_user(user_ID) :
         return
     
@@ -71,7 +69,7 @@ def update_DB(new_Data : dict) -> None:
     with open(file = 'Data/user_DB.json', mode = 'w', encoding = 'UTF-8') as JSON_Load:
         json.dump(new_Data, JSON_Load)
 
-def check_user(user_ID : str) -> bool:
+def check_user(user_ID : int) -> bool:
     if get_DB().__contains__(user_ID) : 
         return True
     
