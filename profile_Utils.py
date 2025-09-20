@@ -6,8 +6,7 @@ from telebot.types import Message, CallbackQuery
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-import user_Form
-#martes 30 : 10 am con CID 110 CUP datos de elizabeth complejo juridico paseo de la paz, anotado con ana luisa ! puerta 17
+
 bot : telebot.TeleBot
 
 def show_settings(message : Message) -> None:
