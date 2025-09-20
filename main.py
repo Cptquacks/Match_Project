@@ -26,6 +26,9 @@ def handle_Start(message : Message) -> None:
         
         return
 
+@bot.message_handler(commands = ['get_chat_id'], chat_types = ['private'])
+def handle_GCIC(message : Message) -> None:
+    bot.send_message(chat_id = message.chat.id, text = f'`{message.chat.id}`', parse_mode = STD_F)
 
 bot.set_my_commands([
     BotCommand('start', 'Pone en marcha el bot'),
