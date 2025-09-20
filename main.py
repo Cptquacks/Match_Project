@@ -16,7 +16,6 @@ STD_F : str = 'MarkdownV2'
 HTM_F : str = 'HTML'
 
 
-
 @bot.message_handler(commands = ['start'], chat_types = ['private'])
 def handle_start(message : Message) -> None:
     if not user_DB.check_user(message.chat.id) :
