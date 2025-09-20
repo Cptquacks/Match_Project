@@ -6,10 +6,10 @@ Objetivo :
 Lograr una base de usuarios que interactue entre si
 
 Funciones :
-Crear perfil
-Gestionar perfil
-Eliminar perfil
-Buscar pareja
+-Crear perfil
+-Gestionar perfil
+-Eliminar perfil
+-Buscar pareja
 
 Guia de codigo:
 Usar pre-enclosure

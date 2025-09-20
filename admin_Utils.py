@@ -1,6 +1,6 @@
 import json, telebot
 
-from user_DB import get_DB, check_ban, read_user, update_user
+from user_DB import get_DB, check_ban, read_user, update_user, delete_user
 
 from telebot.types import Message, CallbackQuery
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -31,7 +31,7 @@ def send_forms(message : Message, user_ID : int) -> None:
     new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
     new_KMarkup.row(
         InlineKeyboardButton('Aprobar', callback_data = f'{user_ID}'),
-        InlineKeyboardButton('No aprobar', callback_data = f'{user_ID}')
+        InlineKeyboardButton('No aprobar', callback_data = 'not')
     )
 
     if user_Form['Photo'] != None:
@@ -51,6 +51,19 @@ def send_forms(message : Message, user_ID : int) -> None:
     
     @bot.callback_query_handler()
     def handle_permission(callback_Data : CallbackQuery) -> None:
-        user_Form.pop('Baned')
-        update_user(user_ID, user_Form)
-        bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id)# type: ignore
+        try :
+            user_Form.pop('Baned')
+
+        except KeyError:
+            return
+
+        if callback_Data.data == user_ID:
+            print('request Accepted')
+            update_user(user_ID, user_Form)
+            bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id)# type: ignore
+            bot.send_message(chat_id = user_ID, text = 'Su usuario a sido aprobado!')
+        
+        else :
+            print('request Denied')
+            delete_user(user_ID)
+            bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id)# type: ignore

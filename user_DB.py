@@ -42,7 +42,8 @@ def update_user(user_ID : int, new_Data : dict) -> None:
     user_Data = new_Data
 
     new_DB : dict = get_DB()
-    new_DB[user_ID] = user_Data
+    new_DB.pop(f'{user_ID}')
+    new_DB[f'{user_ID}'] = user_Data
 
     update_DB(new_DB)
 
