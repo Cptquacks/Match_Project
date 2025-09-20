@@ -36,14 +36,11 @@ def update_user(user_ID : int, new_Data : dict) -> None:
         return
 
     user_Data : dict = read_user(user_ID)
-    
     if user_Data == new_Data:
         return
     
-    for key, value in user_Data.items():
-        if (new_Data[key] != value) :
-            user_Data[key] = new_Data[key]
-
+    user_Data = new_Data
+    print(new_Data)
     new_DB : dict = get_DB()
     new_DB[user_ID] = user_Data
 
@@ -73,8 +70,11 @@ def update_DB(new_Data : dict) -> None:
         json.dump(new_Data, JSON_Load)
 
 def check_ban(user_ID : int) -> bool:
-    if check_user(user_ID) and read_user(user_ID)['Banned']:
-        return True
+    try :
+        if check_user(user_ID) and read_user(user_ID)['Baned']:
+            return True
+    except KeyError:
+        pass
     
     return False
 

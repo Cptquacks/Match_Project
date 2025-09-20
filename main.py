@@ -1,5 +1,5 @@
 import os, telebot
-import user_DB, user_Form
+import user_DB, user_Form, admin_Utils
 
 from telebot.types import Message
 from telebot.types import BotCommand
@@ -29,6 +29,16 @@ def handle_Start(message : Message) -> None:
 @bot.message_handler(commands = ['get_chat_id'], chat_types = ['private'])
 def handle_GCIC(message : Message) -> None:
     bot.send_message(chat_id = message.chat.id, text = f'`{message.chat.id}`', parse_mode = STD_F)
+
+@bot.message_handler(commands = ['get_user_forms'], chat_types = ['private'])
+def handle_GUFC(message : Message) -> None:
+    if not admin_Utils.check_admin(message.chat.id) :
+        return
+    
+    admin_Utils.bot = bot
+    admin_Utils.get_forms(message)
+
+
 
 bot.set_my_commands([
     BotCommand('start', 'Pone en marcha el bot'),
