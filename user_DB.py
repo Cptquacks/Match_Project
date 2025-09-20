@@ -40,7 +40,7 @@ def update_user(user_ID : int, new_Data : dict) -> None:
         return
     
     user_Data = new_Data
-    print(new_Data)
+
     new_DB : dict = get_DB()
     new_DB[user_ID] = user_Data
 
@@ -75,7 +75,7 @@ def check_ban(user_ID : int) -> bool:
             return True
     except KeyError:
         pass
-    
+
     return False
 
 def check_user(user_ID : int) -> bool:
