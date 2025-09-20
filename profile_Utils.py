@@ -6,6 +6,8 @@ from telebot.types import Message, CallbackQuery
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
+import user_Form
+#martes 30 : 10 am con CID 110 CUP datos de elizabeth complejo juridico paseo de la paz, anotado con ana luisa ! puerta 17
 bot : telebot.TeleBot
 
 def show_settings(message : Message) -> None:
@@ -38,3 +40,75 @@ def show_settings(message : Message) -> None:
         text = "Opciones de edicion",
         reply_markup = n_KMarkup
     )
+    bot.register_callback_query_handler(handle_callback, lambda func : True)
+
+def handle_callback(callback_Data : CallbackQuery) -> None:
+    user_Form : dict = read_user(callback_Data.message.chat.id)
+    if user_Form.__contains__(callback_Data.data) :
+        user_Form['Baned'] = True
+        update_user(callback_Data.message.chat.id, user_Form)
+
+    if callback_Data.data == 'Gender':
+        change_gender(callback_Data.message) #type: ignore
+
+    elif callback_Data.data == 'Preference':
+        change_gender(callback_Data.message) #type: ignore
+
+    elif callback_Data.data in ['Photo', 'Name', 'Age', 'Info'] :
+        change_key(callback_Data.message) #type: ignore
+
+
+def change_key(message : Message) -> None:
+    pass
+
+
+def change_gender(message : Message) -> None:
+    new_KMarkup : ReplyKeyboardMarkup = ReplyKeyboardMarkup(True, True, row_width = 2)
+    new_KMarkup.row('Masculino', 'Femenino')
+    new_KMarkup.add('Cancelar')
+
+    get_MSG : Message = bot.send_message(chat_id = message.chat.id, text = "Elija su genero a continuacion", reply_markup = new_KMarkup)
+    bot.register_next_step_handler(get_MSG, set_gender)
+
+def set_gender(message : Message) -> None:
+    gender_List : list[str] = ['Masculino', 'Femenino']
+
+    if str(message.text).capitalize() == 'Cancelar':
+        show_settings(message)
+        return
+    
+    if str(message.text).capitalize() not in gender_List:
+        change_gender(message)
+        return
+    
+    user_Form : dict = read_user(message.chat.id)
+    user_Form['Gender'] = str(message.text).capitalize()
+
+    bot.send_message(chat_id = message.chat.id, text = 'Informacion actualizada', reply_markup = ReplyKeyboardRemove())
+    show_settings(message)
+
+
+def change_preference(message : Message) -> None:
+    new_KMarkup : ReplyKeyboardMarkup = ReplyKeyboardMarkup(True, True, row_width = 2)
+    new_KMarkup.row('Masculino', 'Femenino', 'Ambos')
+    new_KMarkup.add('Cancelar')
+
+    get_MSG : Message = bot.send_message(chat_id = message.chat.id, text = "Elija el genero de su pareja ideal a continuacion", reply_markup = new_KMarkup)
+    bot.register_next_step_handler(get_MSG, set_preference)
+
+def set_preference(message : Message) -> None:
+    gender_List : list[str] = ['Masculino', 'Femenino', 'Ambos']
+
+    if str(message.text).capitalize() == 'Cancelar':
+        show_settings(message)
+        return
+    
+    if str(message.text).capitalize() not in gender_List:
+        change_gender(message)
+        return
+    
+    user_Form : dict = read_user(message.chat.id)
+    user_Form['Preference'] = str(message.text).capitalize()
+
+    bot.send_message(chat_id = message.chat.id, text = 'Informacion actualizada', reply_markup = ReplyKeyboardRemove())
+    show_settings(message)

@@ -46,7 +46,7 @@ def handle_GUFC(message : Message) -> None:
         return
     
     admin_Utils.bot = bot
-    admin_Utils.send_forms(message, admin_Utils.get_forms())
+    admin_Utils.send_forms(message, admin_Utils.get_forms()) if admin_Utils.get_forms() != 0 else admin_Utils.get_forms()
 
 
 
