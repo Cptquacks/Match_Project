@@ -4,6 +4,7 @@ from user_DB import get_DB, check_ban, read_user, update_user, delete_user
 
 from telebot.types import Message, CallbackQuery
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 bot : telebot.TeleBot
 
@@ -19,51 +20,50 @@ def check_admin(user_ID : int) -> bool:
 
     return False
 
-def get_forms(message : Message) -> None:
+def get_forms() -> int:
     user_DB : dict = get_DB()
     
     for key in user_DB.keys():
         if check_ban(key) :
-            send_forms(message, key)
+            return key
+    
+    return 0
+    
+    
 
 def send_forms(message : Message, user_ID : int) -> None:
     user_Form : dict = read_user(user_ID)
-    new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
-    new_KMarkup.row(
-        InlineKeyboardButton('Aprobar', callback_data = f'{user_ID}'),
-        InlineKeyboardButton('No aprobar', callback_data = 'not')
-    )
+    new_KMarkup : ReplyKeyboardMarkup = ReplyKeyboardMarkup(True, True, row_width = 2)
+    new_KMarkup.row('Aprobar', 'Rechazar')
 
     if user_Form['Photo'] != None:
-        bot.send_photo(
+        get_MSG = bot.send_photo(
             chat_id = message.chat.id,
-            photo = user_Form['Photo'],
-            caption = f"Nombre: {user_Form['Name']}\n" f"Edad: {user_Form['Age']}\n" f"Informacion: {user_Form['Info']}",
-            reply_markup = new_KMarkup
+            photo = user_Form['Photo']
         )
     
-    elif user_Form['Photo'] == None:
-        bot.send_message(
-            chat_id = message.chat.id,
-            text = f"Nombre: {user_Form['Name']}\n" f"Edad: {user_Form['Age']}\n" f"Informacion: {user_Form['Info']}",
-            reply_markup = new_KMarkup
-        )
+    get_MSG = bot.send_message(
+        chat_id = message.chat.id,
+        text = f"Nombre: {user_Form['Name']}\n" f"Edad: {user_Form['Age']}\n" f"Informacion: {user_Form['Info']}",
+        reply_markup = new_KMarkup
+    )
     
-    @bot.callback_query_handler()
-    def handle_permission(callback_Data : CallbackQuery) -> None:
-        try :
-            user_Form.pop('Baned')
+    bot.register_next_step_handler(get_MSG, check_form)
 
-        except KeyError:
-            return
+def check_form(message : Message) -> None:
+    bot.send_message(chat_id = message.chat.id, text = 'Enviando respuesta', reply_markup = ReplyKeyboardRemove())
 
-        if callback_Data.data == user_ID:
-            print('request Accepted')
-            update_user(user_ID, user_Form)
-            bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id)# type: ignore
-            bot.send_message(chat_id = user_ID, text = 'Su usuario a sido aprobado!')
-        
-        else :
-            print('request Denied')
-            delete_user(user_ID)
-            bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id)# type: ignore
+    if message.text != 'Aprobar':
+        bot.send_message(chat_id = get_forms(), text = 'Su solicitud fue rechazada y su perfil eliminado')
+        delete_user(get_forms())
+        send_forms(message, get_forms()) if get_forms() != 0 else get_forms()
+        return
+    
+    user_Form : dict = read_user(get_forms())
+    user_Form.pop('Baned')
+
+    bot.send_message(chat_id = get_forms(), text = 'Su solicitud fue aprobada y su perfil autorizado')
+    update_user(get_forms(), user_Form)
+    send_forms(message, get_forms()) if get_forms() != 0 else get_forms()
+
+    

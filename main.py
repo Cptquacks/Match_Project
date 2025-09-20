@@ -28,7 +28,7 @@ def handle_start(message : Message) -> None:
     
 @bot.message_handler(commands = ['settings'], chat_types = ['private'])
 def handle_settings(message : Message) -> None:
-    if not user_DB.check_user(message.chat.id) :
+    if not user_DB.check_user(message.chat.id) and user_DB.check_ban(message.chat.id) :
         return
     
     profile_Utils.bot = bot
@@ -46,7 +46,8 @@ def handle_GUFC(message : Message) -> None:
         return
     
     admin_Utils.bot = bot
-    admin_Utils.get_forms(message)
+    admin_Utils.send_forms(message, admin_Utils.get_forms())
+
 
 
 
