@@ -1,8 +1,17 @@
-Name: LoveFindr
-Objective: TinderLike Bot
+Nombre del proyecto : UCItas Bot
+Descripcion : 
+Bot de citas para la gente de la UCI
 
-Goals:
-1. Let u make a profile
-2. Use interest info to find ppl that match those interests
-3. Let ppl chat between them
-4. Mutual likes
+Objetivo :
+Lograr una base de usuarios que interactue entre si
+
+Funciones :
+Crear perfil
+Gestionar perfil
+Eliminar perfil
+Buscar pareja
+
+Guia de codigo:
+Usar pre-enclosure
+usar KodaCase o SodaCase : function_name function_Name
+solo hagan commit con cambios grandes nada de mini fix
