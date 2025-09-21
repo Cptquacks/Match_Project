@@ -62,7 +62,7 @@ def handle_callback(callback_Data : CallbackQuery) -> None:
         change_gender(callback_Data.message) #type: ignore
 
     elif callback_Data.data in ['Photo', 'Name', 'Age', 'Info'] :
-        change_key(callback_Data.message) #type: ignore
+        change_key(callback_Data.message, callback_Data.data) #type: ignore
     
     elif callback_Data.data == 'delete':
         new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
@@ -74,8 +74,35 @@ def handle_callback(callback_Data : CallbackQuery) -> None:
         bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Esta seguro de realizar esta accion???', reply_markup = new_KMarkup)
 
 
-def change_key(message : Message) -> None:
-    pass
+def change_key(message : Message, key : str) -> None:
+    new_KMarkup : ReplyKeyboardMarkup = ReplyKeyboardMarkup(True)
+    new_KMarkup.add('Cancelar')
+
+    get_MSG : Message = bot.send_message(chat_id = message.chat.id, text = 'Envie los datos nuevos a continuacion', reply_markup = new_KMarkup)
+    bot.register_next_step_handler(get_MSG, set_photo, key)
+
+def set_photo(message : Message, key : str) -> None:
+    user_Form : dict = read_user(message.chat.id)
+
+    bot.send_message(chat_id = message.chat.id, text = 'Espere un momento...')
+
+    if message.text == 'Cancelar' or not user_Form.__contains__(key):
+        show_settings(message)
+        return
+
+    if key == 'Photo':
+        user_Form['Photo'] = message.photo[0].file_id # type:ignore
+    
+    elif key == 'Age':
+        user_Form['Age'] = int(message.text)#type:ignore
+
+    else :
+        user_Form[key] = message.text
+    
+    update_user(message.chat.id, user_Form)
+    bot.send_message(chat_id = message.chat.id, text = 'Sus cambios fueron realizados y estan pendientes a aprobacion')
+    
+
 
 def change_gender(message : Message) -> None:
     new_KMarkup : ReplyKeyboardMarkup = ReplyKeyboardMarkup(True, True, row_width = 2)
