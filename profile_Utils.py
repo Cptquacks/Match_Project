@@ -73,6 +73,9 @@ def handle_callback(callback_Data : CallbackQuery) -> None:
         )
         bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Esta seguro de realizar esta accion???', reply_markup = new_KMarkup)
 
+    elif callback_Data.data == 'back':
+        bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id) #type:ignore
+
 
 def change_key(message : Message, key : str) -> None:
     new_KMarkup : ReplyKeyboardMarkup = ReplyKeyboardMarkup(True)

@@ -73,6 +73,7 @@ def set_gender(message : Message) -> None:
 
     if message.text not in gender_List:
         get_gender(message)
+        return
 
     new_user['Gender'] = message.text
 
@@ -93,6 +94,8 @@ def set_preference(message : Message) -> None:
     
     if message.text not in gender_List:
         get_preference(message)
+        return
+
     new_user['Preference'] = message.text
     
     bot.delete_message(chat_id = message.chat.id, message_id = tar_MSG.id)

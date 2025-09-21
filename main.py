@@ -1,5 +1,5 @@
 import os, telebot
-import user_DB, user_Form, admin_Utils, profile_Utils
+import user_DB, user_Form, admin_Utils, profile_Utils, find_Utils
 
 from telebot.types import Message
 from telebot.types import BotCommand
@@ -33,6 +33,14 @@ def handle_settings(message : Message) -> None:
     profile_Utils.bot = bot
     profile_Utils.show_settings(message)
 
+@bot.message_handler(commands = ['search'], chat_types = ['private'])
+def handle_search(message : Message) -> None:
+    if not user_DB.check_user(message.chat.id) :
+        return
+    
+    find_Utils.bot = bot
+    find_Utils.show_profiles(message)
+
 
 #Admin commands
 @bot.message_handler(commands = ['get_chat_id'], chat_types = ['private'])
@@ -52,6 +60,7 @@ def handle_GUFC(message : Message) -> None:
 
 bot.set_my_commands([
     BotCommand('start', 'Pone en marcha el bot'),
+    BotCommand('search', 'Muestra perfiles en el bot'),
     BotCommand('profile', 'Accede a la informacion de perfil'),
     BotCommand('settings', 'Abre las opciones del perfil')
 ])
