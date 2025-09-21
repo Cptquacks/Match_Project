@@ -9,6 +9,23 @@ from telebot.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 bot : telebot.TeleBot
 
+def show_profile(chat_ID : int, user_ID : int) -> None:
+    if read_user(user_ID)['Photo'] != None:
+        bot.send_photo(
+            chat_id = chat_ID,
+            photo = read_user(user_ID)['Photo']
+        )
+
+    bot.send_message(
+        chat_id = chat_ID,
+        text = (
+            f'Nombre:{read_user(user_ID)['Name']}\n'
+            f'Edad:{read_user(user_ID)['Age']}\n'
+            f'Informacion:\n{read_user(user_ID)['Info']}'
+        )
+    )
+    
+
 def show_settings(message : Message) -> None:
     user_Form : dict = read_user(message.chat.id)
 
@@ -42,39 +59,40 @@ def show_settings(message : Message) -> None:
         text = "Opciones de edicion",
         reply_markup = n_KMarkup
     )
-    bot.register_callback_query_handler(handle_callback, lambda func : True)
+    @bot.callback_query_handler(lambda call : not call.data.startswith('profiles_'))
 
-def handle_callback(callback_Data : CallbackQuery) -> None:
-    user_Form : dict = read_user(callback_Data.message.chat.id)
-    
-    if callback_Data.data == f'{callback_Data.message.chat.id}':
-        bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Su usuario ha sido eliminado')
-        delete_user(callback_Data.message.chat.id)
+    def handle_callback(callback_Data : CallbackQuery) -> None:
+        print(callback_Data.data)
+        user_Form : dict = read_user(callback_Data.message.chat.id)
+        
+        if callback_Data.data == f'{callback_Data.message.chat.id}':
+            bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Su usuario ha sido eliminado')
+            delete_user(callback_Data.message.chat.id)
 
-    if user_Form.__contains__(callback_Data.data) :
-        user_Form['Baned'] = True
-        update_user(callback_Data.message.chat.id, user_Form)
+        if user_Form.__contains__(callback_Data.data) :
+            user_Form['Baned'] = True
+            update_user(callback_Data.message.chat.id, user_Form)
 
-    if callback_Data.data == 'Gender':
-        change_gender(callback_Data.message) #type: ignore
+        if callback_Data.data == 'Gender':
+            change_gender(callback_Data.message) #type: ignore
 
-    elif callback_Data.data == 'Preference':
-        change_gender(callback_Data.message) #type: ignore
+        elif callback_Data.data == 'Preference':
+            change_gender(callback_Data.message) #type: ignore
 
-    elif callback_Data.data in ['Photo', 'Name', 'Age', 'Info'] :
-        change_key(callback_Data.message, callback_Data.data) #type: ignore
-    
-    elif callback_Data.data == 'delete':
-        new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
-        new_KMarkup.row(
-            InlineKeyboardButton('Si', callback_data = callback_Data.message.chat.id), #type: ignore
-            InlineKeyboardButton('No', callback_data = 'null'), #type: ignore
+        elif callback_Data.data in ['Photo', 'Name', 'Age', 'Info'] :
+            change_key(callback_Data.message, callback_Data.data) #type: ignore
+        
+        elif callback_Data.data == 'delete':
+            new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
+            new_KMarkup.row(
+                InlineKeyboardButton('Si', callback_data = callback_Data.message.chat.id), #type: ignore
+                InlineKeyboardButton('No', callback_data = 'null'), #type: ignore
 
-        )
-        bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Esta seguro de realizar esta accion???', reply_markup = new_KMarkup)
+            )
+            bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Esta seguro de realizar esta accion???', reply_markup = new_KMarkup)
 
-    elif callback_Data.data == 'back':
-        bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id) #type:ignore
+        elif callback_Data.data == 'back':
+            bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id) #type:ignore
 
 
 def change_key(message : Message, key : str) -> None:

@@ -28,7 +28,19 @@ def get_forms() -> int:
             return key
     
     return 0
+
+def get_admins() -> list[str]:    
+    with open(file = 'Data/admin_DB.json', mode = 'r', encoding = 'UTF-8') as JSON_Get:
+        try :
+            admin_DB : list[str] = json.load(JSON_Get)['admins']
+            return admin_DB
+        
+        except KeyError:
+            pass
+        except IndexError:
+            pass
     
+    return []
     
 
 def send_forms(message : Message, user_ID : int) -> None:

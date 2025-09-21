@@ -1,6 +1,7 @@
-import json, telebot, random
+import json, telebot, random, profile_Utils
 
 from user_DB import read_user, get_DB, update_user
+from admin_Utils import get_admins
 
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
 from telebot.types import CallbackQuery, Message
@@ -137,14 +138,14 @@ def get_RProfile(message : Message, key : str) -> dict:
 def show_profiles(message : Message) -> None:
     new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
     new_KMarkup.row(
-        InlineKeyboardButton(text = '❤️', callback_data = 'like'),
-        InlineKeyboardButton(text = '💌', callback_data = 'message')
+        InlineKeyboardButton(text = '❤️', callback_data = 'profiles_like'),
+        InlineKeyboardButton(text = '💌', callback_data = 'profiles_message')
     )
     new_KMarkup.row(
-        InlineKeyboardButton(text = '💤', callback_data = 'next'),
-        InlineKeyboardButton(text = '⚠️', callback_data = 'report')
+        InlineKeyboardButton(text = '💤', callback_data = 'profiles_next'),
+        InlineKeyboardButton(text = '⚠️', callback_data = 'profiles_report')
     )
-    new_KMarkup.add(InlineKeyboardButton(text = 'Atras', callback_data = 'back'))
+    new_KMarkup.add(InlineKeyboardButton(text = 'Atras', callback_data = 'profiles_back'))
 
     if not has_SList(message) :
         user_Form : dict = read_user(message.chat.id)
@@ -184,22 +185,45 @@ def show_profiles(message : Message) -> None:
         reply_markup = new_KMarkup,
         parse_mode = 'MarkdownV2'
     )
-    bot.register_callback_query_handler(handle_option, lambda func : True)
+    @bot.callback_query_handler(lambda call : call.data.startswith('profiles_'))
 
-def handle_option(callback_Data : CallbackQuery) -> None:
-    user_Form : dict = read_user(callback_Data.message.chat.id)
-    if callback_Data.data == 'like':
-        add_TLList(callback_Data.message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])#type:ignore
-        show_profiles(callback_Data.message)#type:ignore
+    def handle_option(callback_Data : CallbackQuery) -> None:
+        callback_Data.data = str(callback_Data.data).split('_')[1]
+        user_Form : dict = read_user(callback_Data.message.chat.id)
+        if callback_Data.data == 'like':
+            add_TLList(callback_Data.message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])#type:ignore
+
+            bot.send_message(chat_id = user_Form['seen_list'][user_Form['seen_list'].__len__() - 1], text = f'Le has gustado al usuario {read_user(callback_Data.message.chat.id)['Name']}')
+            
+            profile_Utils.bot = bot
+            profile_Utils.show_profile(int(user_Form['seen_list'][user_Form['seen_list'].__len__() - 1]), callback_Data.message.chat.id)
+            show_profiles(callback_Data.message)#type:ignore
+            
+        elif callback_Data.data == 'message':
+            add_TLList(callback_Data.message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])#type:ignore
+
+            get_MSG = bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Escriba a continuacion el mensaje que desea enviar')
+            bot.register_next_step_handler(get_MSG, handle_message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
+
+        elif callback_Data.data == 'report':
+            get_MSG = bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Describa su motivo de reporte a continuacion')
+            bot.register_next_step_handler(get_MSG, handle_report, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
+
+        elif callback_Data.data == 'next':
+            show_profiles(callback_Data.message)#type:ignore
         
-    elif callback_Data.data == 'message':
-        add_TLList(callback_Data.message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])#type:ignore
-        show_profiles(callback_Data.message)#type:ignore
-
-    elif callback_Data.data == 'next':
-        show_profiles(callback_Data.message)#type:ignore
-    
-    elif callback_Data.data == 'back':
-        return
+        elif callback_Data.data == 'back':
+            bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Saliendo del modo busqueda')
+            return
 
 
+
+def handle_message(message : Message, key : str) -> None:
+    bot.send_message(chat_id = message.chat.id, text = 'Mensaje enviado')
+    bot.send_message(chat_id = key, text = f'Mensaje de {read_user(message.chat.id)['Name']}:\n{message.text}')
+    show_profiles(message)#type:ignore
+
+def handle_report(message : Message, key : str) -> None:
+    bot.send_message(chat_id = message.chat.id, text = f'Reporte enviado')
+    for admin in get_admins():
+        bot.send_message(chat_id = admin, text = f'Reporte del usuario:{read_user(message.chat.id)['Name']}\nSobre el usuario:{read_user(int(key))['Name']}\nInfo de reporte:\n{message.text}')
