@@ -41,7 +41,15 @@ def get_admins() -> list[str]:
             pass
     
     return []
-    
+
+def get_GMessage(message : Message) -> None:
+    get_MSG : Message = bot.send_message(chat_id = message.chat.id, text = 'SENDGMSSAGE')
+    bot.register_next_step_handler(get_MSG, send_GMessage)
+
+
+def send_GMessage(message : Message) -> None:
+    for key in get_DB().keys():
+        bot.send_message(chat_id = int(key), text = f'Mensaje de los administradores: {message.text}')    
 
 def send_forms(message : Message, user_ID : int) -> None:
     user_Form : dict = read_user(user_ID)

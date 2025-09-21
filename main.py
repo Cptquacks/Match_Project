@@ -55,6 +55,14 @@ def handle_GUFC(message : Message) -> None:
     admin_Utils.bot = bot
     admin_Utils.send_forms(message, admin_Utils.get_forms()) if admin_Utils.get_forms() != 0 else admin_Utils.get_forms()
 
+@bot.message_handler(commands = ['send_gmsg'], chat_types = ['private'])
+def handle_SGMC(message : Message) -> None:
+    if not admin_Utils.check_admin(message.chat.id):
+        return
+    
+    admin_Utils.bot = bot
+    admin_Utils.get_GMessage(message)
+
 
 
 
