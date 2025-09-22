@@ -85,7 +85,7 @@ def show_settings(message : Message) -> None:
             change_gender(callback_Data.message) #type: ignore
 
         elif callback_Data.data == 'Preference':
-            change_gender(callback_Data.message) #type: ignore
+            change_preference(callback_Data.message) #type: ignore
 
         elif callback_Data.data in ['Photo', 'Name', 'Age', 'Info'] :
             change_key(callback_Data.message, callback_Data.data) #type: ignore
@@ -101,6 +101,8 @@ def show_settings(message : Message) -> None:
 
         elif callback_Data.data == 'back':
             bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id) #type:ignore
+        
+        print(f"ID: {message.chat.id} CD: {callback_Data.data}")
 
 
 def change_key(message : Message, key : str) -> None:
@@ -141,7 +143,7 @@ def change_gender(message : Message) -> None:
     bot.register_next_step_handler(get_MSG, set_gender)
 
 def set_gender(message : Message) -> None:
-    gender_List : list[str] = ['Masculino', 'Femenino']
+    gender_List : list[str] = ['Masculino', 'Femenino', 'Ambos']
 
     if str(message.text).capitalize() == 'Cancelar':
         show_settings(message)
@@ -181,6 +183,7 @@ def set_preference(message : Message) -> None:
     
     user_Form : dict = read_user(message.chat.id)
     user_Form['Preference'] = str(message.text).capitalize()
+    print(user_Form['Preference'], message.text)
 
     update_user(message.chat.id, user_Form)
 
