@@ -136,6 +136,7 @@ def get_RProfile(message : Message, key : str) -> dict:
 
 
 def show_profiles(message : Message) -> None:
+    print('[*] showing profiles')
     new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
     new_KMarkup.row(
         InlineKeyboardButton(text = '❤️', callback_data = 'profiles_like'),
@@ -190,6 +191,8 @@ def show_profiles(message : Message) -> None:
     def handle_option(callback_Data : CallbackQuery) -> None:
         callback_Data.data = str(callback_Data.data).split('_')[1]
         user_Form : dict = read_user(callback_Data.message.chat.id)
+        print(callback_Data.data)
+
         if callback_Data.data == 'like':
             handle_like(message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
             
@@ -214,6 +217,7 @@ def show_profiles(message : Message) -> None:
 
 
 def handle_like(message : Message, key : int) -> None:
+    show_profiles(message)
     new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 3)
     new_KMarkup.row(
         InlineKeyboardButton('❤️', callback_data = 'request_like'),
@@ -234,12 +238,13 @@ def handle_like(message : Message, key : int) -> None:
             bot.send_message(chat_id = message.chat.id, text = f'{read_user(key)['Name']} ha aceptado tu solicitud\nUsuario:@{callback_Data.from_user.username}') #type:ignore
             bot.send_message(chat_id = key, text = f'{read_user(message.chat.id)['Name']} ha aceptado tu solicitud\nUsuario:@{message.from_user.username}') #type:ignore
 
+
         elif callback_Data.data == 'next':
-            show_profiles(message)
-            return
+            pass
         
         bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = tar_MSG.id)
         bot.delete_message(chat_id = message.chat.id, message_id = tar_MSG.id)
+        show_profiles(message)
 
         return
 

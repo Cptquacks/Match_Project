@@ -93,7 +93,7 @@ bot.set_my_commands([
     BotCommand('search', 'Muestra perfiles en el bot'),
     BotCommand('profile', 'Accede a la informacion de perfil'),
     BotCommand('settings', 'Abre las opciones del perfil'),
-    BotCommand('feeedback', 'Permite enviar sugerencias')
+    BotCommand('feedback', 'Permite enviar sugerencias')
 ])
 
 os.system('clear')

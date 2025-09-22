@@ -73,6 +73,8 @@ def show_settings(message : Message) -> None:
         
         print(callback_Data.data)
 
+
+
         if callback_Data.data == f'{callback_Data.message.chat.id}':
             bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Su usuario ha sido eliminado')
             delete_user(callback_Data.message.chat.id)
@@ -91,13 +93,8 @@ def show_settings(message : Message) -> None:
             change_key(callback_Data.message, callback_Data.data) #type: ignore
         
         elif callback_Data.data == 'delete':
-            new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
-            new_KMarkup.row(
-                InlineKeyboardButton('Si', callback_data = callback_Data.message.chat.id), #type: ignore
-                InlineKeyboardButton('No', callback_data = 'null'), #type: ignore
-
-            )
-            bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Esta seguro de realizar esta accion???', reply_markup = new_KMarkup)
+            bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Usuario eliminado')
+            delete_user(callback_Data.message.chat.id)
 
         elif callback_Data.data == 'back':
             bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id) #type:ignore
