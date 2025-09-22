@@ -25,11 +25,15 @@ def handle_start(message : Message) -> None:
         
         return
 
+    elif message.from_user.username == None: #type: ignore
+        bot.send_message(chat_id = message.chat.id, text = f'Necesita un @nombre_de_usuario de usuario para acceder al bot')
+        return
+
     bot.send_message(chat_id = message.chat.id, text = 'Usted ya ha sido aprobado dentro del bot')
     
 @bot.message_handler(commands = ['settings'], chat_types = ['private'])
 def handle_settings(message : Message) -> None:
-    if not user_DB.check_user(message.chat.id) and user_DB.check_ban(message.chat.id) :
+    if not user_DB.check_user(message.chat.id) or user_DB.check_ban(message.chat.id) :
         return
     
     profile_Utils.bot = bot
@@ -37,7 +41,7 @@ def handle_settings(message : Message) -> None:
 
 @bot.message_handler(commands = ['search'], chat_types = ['private'])
 def handle_search(message : Message) -> None:
-    if not user_DB.check_user(message.chat.id) and not user_DB.check_ban(message.chat.id) :
+    if not user_DB.check_user(message.chat.id) or user_DB.check_ban(message.chat.id) :
         return
     
 

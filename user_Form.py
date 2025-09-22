@@ -9,12 +9,6 @@ from telebot.types import ReplyKeyboardRemove
 new_user : dict = STD_UserForm
 bot : telebot.TeleBot
 
-def set_bot(bot_Object : telebot.TeleBot) -> None:
-    if bot_Object == None :
-        return
-    
-    bot = bot_Object
-
 
 
 def get_name(message : Message) -> None:
@@ -114,6 +108,8 @@ def set_picture(message : Message) -> None:
     try :
         if message.photo[0].file_id == None :# type: ignore
             bot.send_message(chat_id = message.chat.id, text = f'La imagen de perfil es obligatoria')
+            get_picture(message)
+            return
         
         new_user['Photo'] = message.photo[0].file_id # type: ignore
     

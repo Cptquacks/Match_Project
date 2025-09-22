@@ -8,6 +8,7 @@ from telebot.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 
 bot : telebot.TeleBot
+user_Form : dict
 
 def show_profile(chat_ID : int, user_ID : int) -> None:
     if read_user(user_ID)['Photo'] != None:
@@ -27,7 +28,7 @@ def show_profile(chat_ID : int, user_ID : int) -> None:
     
 
 def show_settings(message : Message) -> None:
-    user_Form : dict = read_user(message.chat.id)
+    user_Form = read_user(message.chat.id)
 
     n_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 3)
     n_KMarkup.row(
@@ -45,43 +46,49 @@ def show_settings(message : Message) -> None:
         InlineKeyboardButton('Salir', callback_data = 'settings_back')
     )
     
-    try:
-        if user_Form['Photo'] != None:
-            bot.send_photo(
-                chat_id = message.chat.id, 
-                photo = user_Form['Photo']
-            )
-    except KeyError:
-        pass
+
+
+    if user_Form['Photo'] != None:
+        bot.send_photo(
+            chat_id = message.chat.id, 
+            photo = user_Form['Photo'],
+            caption = (
+                f'Nombre:{user_Form['Name']}\n'
+                f'Edad:{user_Form['Age']}\n'
+                f'Informacion:\n{user_Form['Info']}\n\n'
+                f'Genero:{user_Form['Gender']}\n'
+                f'Preferencia:{user_Form['Preference']}'
+            ),
+            reply_markup = n_KMarkup
+        )
     
-    bot.send_message(
-        chat_id = message.chat.id,
-        text = (
-            f'Nombre:{user_Form['Name']}\n'
-            f'Edad:{user_Form['Age']}\n'
-            f'Informacion:\n{user_Form['Info']}\n\n'
-            f'Genero:{user_Form['Gender']}\n'
-            f'Preferencia:{user_Form['Preference']}'
-        ),
-        reply_markup = n_KMarkup
-    )
+    elif user_Form['Photo'] == None:
+        bot.send_message(
+            chat_id = message.chat.id,
+            text = (
+                f'Nombre:{user_Form['Name']}\n'
+                f'Edad:{user_Form['Age']}\n'
+                f'Informacion:\n{user_Form['Info']}\n\n'
+                f'Genero:{user_Form['Gender']}\n'
+                f'Preferencia:{user_Form['Preference']}'
+            ),
+            reply_markup = n_KMarkup
+        )
+
+
+
     @bot.callback_query_handler(lambda call : call.data.startswith('settings_'))
     def handle_callback(callback_Data : CallbackQuery) -> None:
 
         callback_Data.data = str(callback_Data.data).split('_')[1]
-        user_Form : dict = read_user(callback_Data.message.chat.id)
-        
-        print(callback_Data.data)
+        print(f'Callback for /settings \n\tID: {callback_Data.message.chat.id} \n\tKEY: {callback_Data.data}')
 
 
-
-        if callback_Data.data == f'{callback_Data.message.chat.id}':
-            bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Su usuario ha sido eliminado')
-            delete_user(callback_Data.message.chat.id)
 
         if user_Form.__contains__(callback_Data.data) and not user_Form.__contains__('Baned'):
             user_Form['Baned'] = True
             update_user(callback_Data.message.chat.id, user_Form)
+
 
         if callback_Data.data == 'Gender':
             change_gender(callback_Data.message) #type: ignore
@@ -110,17 +117,17 @@ def change_key(message : Message, key : str) -> None:
     bot.register_next_step_handler(get_MSG, set_key, key)
 
 def set_key(message : Message, key : str) -> None:
-    user_Form : dict = read_user(message.chat.id)
     bot.send_message(chat_id = message.chat.id, text = 'Espere un momento...')
+
 
     if message.text == 'Cancelar' or not user_Form.__contains__(key):
         show_settings(message)
         return
 
-    if key == 'Photo':
+    if key == 'Photo' and message.photo != None:
         user_Form['Photo'] = message.photo[0].file_id # type:ignore
     
-    elif key == 'Age':
+    elif key == 'Age' and str(message.text).isnumeric():
         user_Form['Age'] = int(message.text)#type:ignore
 
     else :
@@ -140,7 +147,7 @@ def change_gender(message : Message) -> None:
     bot.register_next_step_handler(get_MSG, set_gender)
 
 def set_gender(message : Message) -> None:
-    gender_List : list[str] = ['Masculino', 'Femenino', 'Ambos']
+    gender_List : list[str] = ['Masculino', 'Femenino']
 
     if str(message.text).capitalize() == 'Cancelar':
         show_settings(message)
@@ -150,9 +157,8 @@ def set_gender(message : Message) -> None:
         change_gender(message)
         return
     
-    user_Form : dict = read_user(message.chat.id)
+    
     user_Form['Gender'] = str(message.text).capitalize()
-
     update_user(message.chat.id, user_Form)
 
     bot.send_message(chat_id = message.chat.id, text = 'Informacion actualizada', reply_markup = ReplyKeyboardRemove())
@@ -178,10 +184,7 @@ def set_preference(message : Message) -> None:
         change_gender(message)
         return
     
-    user_Form : dict = read_user(message.chat.id)
     user_Form['Preference'] = str(message.text).capitalize()
-    print(user_Form['Preference'], message.text)
-
     update_user(message.chat.id, user_Form)
 
     bot.send_message(chat_id = message.chat.id, text = 'Informacion actualizada', reply_markup = ReplyKeyboardRemove())
