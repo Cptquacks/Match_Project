@@ -112,8 +112,10 @@ def set_picture(message : Message) -> None:
     tar_MSG = bot.send_message(chat_id = message.chat.id, text = f'Espere un momento...', reply_markup = ReplyKeyboardRemove())
 
     try :
-        if message.photo[0].file_id != None :# type: ignore
-            new_user['Photo'] = message.photo[0].file_id # type: ignore
+        if message.photo[0].file_id == None :# type: ignore
+            bot.send_message(chat_id = message.chat.id, text = f'La imagen de perfil es obligatoria')
+        
+        new_user['Photo'] = message.photo[0].file_id # type: ignore
     
     except IndexError:
         pass
