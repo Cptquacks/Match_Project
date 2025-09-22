@@ -197,6 +197,7 @@ def show_profiles(message : Message) -> None:
             add_TLList(callback_Data.message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])#type:ignore
 
             get_MSG = bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Escriba a continuacion el mensaje que desea enviar')
+            handle_like(message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
             bot.register_next_step_handler(get_MSG, handle_message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
 
         elif callback_Data.data == 'report':
@@ -223,7 +224,7 @@ def handle_like(message : Message, key : int) -> None:
 
     profile_Utils.bot = bot
     profile_Utils.show_profile(key, message.chat.id)
-    bot.send_message(chat_id = int(key), text = f'Le has gustado al usuario {read_user(message.chat.id)['Name']}', reply_markup = new_KMarkup)
+    tar_MSG : Message = bot.send_message(chat_id = int(key), text = f'Le has gustado al usuario {read_user(message.chat.id)['Name']}', reply_markup = new_KMarkup)
     
     @bot.callback_query_handler(lambda call : str(call.data).startswith('request_'))
     def handle_request(callback_Data : CallbackQuery) -> None:
@@ -236,6 +237,9 @@ def handle_like(message : Message, key : int) -> None:
         elif callback_Data.data == 'next':
             show_profiles(message)
             return
+        
+        bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = tar_MSG.id)
+        bot.delete_message(chat_id = message.chat.id, message_id = tar_MSG.id)
 
         return
 
