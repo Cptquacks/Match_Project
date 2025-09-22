@@ -191,13 +191,7 @@ def show_profiles(message : Message) -> None:
         callback_Data.data = str(callback_Data.data).split('_')[1]
         user_Form : dict = read_user(callback_Data.message.chat.id)
         if callback_Data.data == 'like':
-            add_TLList(callback_Data.message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])#type:ignore
-
-            bot.send_message(chat_id = user_Form['seen_list'][user_Form['seen_list'].__len__() - 1], text = f'Le has gustado al usuario {read_user(callback_Data.message.chat.id)['Name']}')
-            
-            profile_Utils.bot = bot
-            profile_Utils.show_profile(int(user_Form['seen_list'][user_Form['seen_list'].__len__() - 1]), callback_Data.message.chat.id)
-            show_profiles(callback_Data.message)#type:ignore
+            handle_like(message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
             
         elif callback_Data.data == 'message':
             add_TLList(callback_Data.message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])#type:ignore
@@ -217,6 +211,33 @@ def show_profiles(message : Message) -> None:
             return
 
 
+
+def handle_like(message : Message, key : int) -> None:
+    new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 3)
+    new_KMarkup.row(
+        InlineKeyboardButton('❤️', callback_data = 'request_like'),
+        InlineKeyboardButton('💤', callback_data = 'request_next')
+    )
+
+    add_TLList(message, key)#type:ignore
+
+    profile_Utils.bot = bot
+    profile_Utils.show_profile(key, message.chat.id)
+    bot.send_message(chat_id = int(key), text = f'Le has gustado al usuario {read_user(message.chat.id)['Name']}', reply_markup = new_KMarkup)
+    
+    @bot.callback_query_handler(lambda call : str(call.data).startswith('request_'))
+    def handle_request(callback_Data : CallbackQuery) -> None:
+        callback_Data.data = str(callback_Data.data).split('_')[1]
+
+        if callback_Data.data == 'like':
+            bot.send_message(chat_id = message.chat.id, text = f'{read_user(key)['Name']} ha aceptado tu solicitud\nUsuario:@{callback_Data.from_user.username}') #type:ignore
+            bot.send_message(chat_id = key, text = f'{read_user(message.chat.id)['Name']} ha aceptado tu solicitud\nUsuario:@{message.from_user.username}') #type:ignore
+
+        elif callback_Data.data == 'next':
+            show_profiles(message)
+            return
+
+        return
 
 def handle_message(message : Message, key : str) -> None:
     bot.send_message(chat_id = message.chat.id, text = 'Mensaje enviado')

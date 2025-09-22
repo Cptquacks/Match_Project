@@ -86,4 +86,6 @@ def check_form(message : Message) -> None:
     update_user(get_forms(), user_Form)
     send_forms(message, get_forms()) if get_forms() != 0 else get_forms()
 
-    
+def handle_feedback(message : Message) -> None:
+    for admin in get_admins():
+        bot.send_message(chat_id = int(admin), text = f'Mensaje de usuario {read_user(message.chat.id)['Name']}:\n**>>{message.text}', parse_mode = 'MarkdownV2')

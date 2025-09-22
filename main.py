@@ -18,12 +18,14 @@ HTM_F : str = 'HTML'
 
 @bot.message_handler(commands = ['start'], chat_types = ['private'])
 def handle_start(message : Message) -> None:
-    if not user_DB.check_user(message.chat.id) :
+    if not user_DB.check_user(message.chat.id) and message.from_user.username != None : #type: ignore
         bot.send_message(chat_id = message.chat.id, text = f'Hola {message.chat.first_name} *bienvenido a UCItas*', parse_mode = STD_F)
         user_Form.bot = bot
         user_Form.get_name(message)
         
         return
+
+    bot.send_message(chat_id = message.chat.id, text = 'Usted ya ha sido aprobado dentro del bot')
     
 @bot.message_handler(commands = ['settings'], chat_types = ['private'])
 def handle_settings(message : Message) -> None:
@@ -35,11 +37,31 @@ def handle_settings(message : Message) -> None:
 
 @bot.message_handler(commands = ['search'], chat_types = ['private'])
 def handle_search(message : Message) -> None:
-    if not user_DB.check_user(message.chat.id) :
+    if not user_DB.check_user(message.chat.id) and not user_DB.check_ban(message.chat.id) :
         return
     
+
     find_Utils.bot = bot
     find_Utils.show_profiles(message)
+
+@bot.message_handler(commands = ['profile'], chat_types = ['private'])
+def handle_profile(message : Message) -> None:
+    if not user_DB.check_user(message.chat.id):
+        return
+    
+    profile_Utils.bot = bot
+    profile_Utils.show_profile(message.chat.id, message.chat.id)
+
+@bot.message_handler(commands = ['feedback'], chat_types = ['private'])
+def handle_feedback(message : Message) -> None:
+    if not user_DB.check_user(message.chat.id):
+        return
+    
+    admin_Utils.bot = bot
+    get_MSG : Message = bot.send_message(chat_id = message.chat.id, text = 'Escriba su mensaje a los administradores a continuacion')
+    bot.register_next_step_handler(get_MSG, admin_Utils.handle_feedback)
+
+
 
 
 #Admin commands
@@ -70,7 +92,8 @@ bot.set_my_commands([
     BotCommand('start', 'Pone en marcha el bot'),
     BotCommand('search', 'Muestra perfiles en el bot'),
     BotCommand('profile', 'Accede a la informacion de perfil'),
-    BotCommand('settings', 'Abre las opciones del perfil')
+    BotCommand('settings', 'Abre las opciones del perfil'),
+    BotCommand('feeedback', 'Permite enviar sugerencias')
 ])
 
 os.system('clear')
