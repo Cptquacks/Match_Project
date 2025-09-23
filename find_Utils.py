@@ -9,6 +9,12 @@ from telebot.types import CallbackQuery, Message
 bot : telebot.TeleBot
 debug : bool = False
 
+user_DB : dict = {}
+user_Form : dict = {}
+
+def update_UForm(user_ID : int) -> None:
+    global user_Form
+    user_Form = read_user(user_ID)
 
 #Like list methods
 def has_LList(message : Message) -> bool:
@@ -146,7 +152,9 @@ def show_profiles(message : Message) -> None:
         InlineKeyboardButton(text = '💤', callback_data = 'profiles_next'),
         InlineKeyboardButton(text = '⚠️', callback_data = 'profiles_report')
     )
-    new_KMarkup.add(InlineKeyboardButton(text = 'Atras', callback_data = 'profiles_back'))
+    new_KMarkup.add(
+        InlineKeyboardButton(text = 'Atras', callback_data = 'profiles_back')
+    )
 
     if not has_SList(message) :
         user_Form : dict = read_user(message.chat.id)
@@ -178,16 +186,27 @@ def show_profiles(message : Message) -> None:
     add_LList(message)
 
     if display_Profile['Photo'] != None:
-        bot.send_photo(chat_id = message.chat.id, photo = display_Profile['Photo'])
-        
-    bot.send_message(
-        chat_id = message.chat.id, 
-        text = f'Nombre: {display_Profile['Name']} Edad: {display_Profile['Age']} \nDescripcion:\n**>>{display_Profile['Info']}',
-        reply_markup = new_KMarkup,
-        parse_mode = 'MarkdownV2'
-    )
-    @bot.callback_query_handler(lambda call : call.data.startswith('profiles_'))
+        bot.send_photo(
+            chat_id = message.chat.id, 
+            photo = display_Profile['Photo'],
+            caption = (
+                f'Nombre: {display_Profile['Name']}'
+                f'Edad: {display_Profile['Age']}'
+                f'Descripcion:\n**>>{display_Profile['Info']}'
+            )
+            
+        )
+    
+    elif display_Profile['Photo'] == None:
+        bot.send_message(
+            chat_id = message.chat.id, 
+            text = f'Nombre: {display_Profile['Name']} Edad: {display_Profile['Age']} \nDescripcion:\n**>>{display_Profile['Info']}',
+            reply_markup = new_KMarkup,
+            parse_mode = 'MarkdownV2'
+        )
 
+        
+    @bot.callback_query_handler(lambda call : call.data.startswith('profiles_'))
     def handle_option(callback_Data : CallbackQuery) -> None:
         callback_Data.data = str(callback_Data.data).split('_')[1]
         user_Form : dict = read_user(callback_Data.message.chat.id)
