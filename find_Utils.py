@@ -9,12 +9,86 @@ from telebot.types import CallbackQuery, Message
 bot : telebot.TeleBot
 debug : bool = False
 
-user_DB : dict = {}
-user_Form : dict = {}
+user_DB : dict
 
-def update_UForm(user_ID : int) -> None:
-    global user_Form
+def update_UForm(user_ID : int) -> dict:
     user_Form = read_user(user_ID)
+
+    if not user_Form.__contains__('seen_list'):
+        user_Form['seen_list'] = []
+        update_user(user_ID, user_Form)   
+        
+    if not user_Form.__contains__('like_list'):
+        user_Form['like_list'] = []
+        update_user(user_ID, user_Form)
+    
+    return user_Form
+
+def slist_sall(user_Form : dict) -> bool:
+    kCount : int = 0
+    user_Preference : str = user_Form['Preference']
+    user_Gender : str = user_Form['Gender']
+
+    for key in user_DB.keys():
+        if (user_DB[key]['Gender'] != user_Gender and user_DB[key]['Preference'] != user_Preference) :
+            kCount += 1
+        
+        elif (user_DB[key]['Preference'] == 'Ambos' and user_Form['Preference'] == 'Ambos') :
+            kCount += 1
+        
+    if kCount != user_Form['seen_list'].__len__() and kCount != 0:
+        return False
+    
+    return True
+
+def slist_skey(user_Form : dict, key : str) -> bool:
+    if user_Form['seen_list'].__contains__(key):
+        return True
+    
+    return False
+
+def slist_akey(message : Message, key : str) -> dict:
+    user_Form : dict = read_user(message.chat.id)
+
+    if slist_sall(user_Form):
+        user_Form['seen_list'] = []
+        return user_Form
+    
+    user_Form['seen_list'].append(key)
+    update_user(message.chat.id, user_Form)
+
+    user_Form = update_UForm(message.chat.id)
+    return user_Form
+
+
+
+def llist_akey(user_Form : dict, key : str) -> dict:
+    if user_Form['like_list'].__contains__(key):
+        return user_Form
+
+    user_Form['like_list'].append(key)
+    return user_Form
+
+def get_Profile(user_Form : dict) -> dict:
+    user_Gender : str = user_Form['Gender']
+    user_Preference : str = user_Form['Preference']
+
+    for key, value in user_DB.items():
+
+        if (not slist_skey(user_Form, key)):
+            if (user_Gender != user_DB[key]['Gender'] and user_Preference != user_DB[key]['Preference']):
+                profile_Data : dict = user_DB[key]
+                profile_Data['key'] = key
+                return profile_Data
+
+            elif (user_Preference == 'Ambos' and user_DB[key]['Preference'] == 'Ambos'):
+                profile_Data : dict = user_DB[key]
+                profile_Data['key'] = key
+                return profile_Data
+    
+    return {'error' : 'user not found in DB'}
+
+
 
 #Like list methods
 def has_LList(message : Message) -> bool:
@@ -142,7 +216,10 @@ def get_RProfile(message : Message, key : str) -> dict:
 
 
 def show_profiles(message : Message) -> None:
-    print('[*] showing profiles')
+    print('[*] showing profiles')  
+    user_Form : dict = update_UForm(message.chat.id)
+
+
     new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
     new_KMarkup.row(
         InlineKeyboardButton(text = '❤️', callback_data = 'profiles_like'),
@@ -155,76 +232,70 @@ def show_profiles(message : Message) -> None:
     new_KMarkup.add(
         InlineKeyboardButton(text = 'Atras', callback_data = 'profiles_back')
     )
-
-    if not has_SList(message) :
-        user_Form : dict = read_user(message.chat.id)
+    
+    if slist_sall(user_Form) :
         user_Form['seen_list'] = []
-        update_user(message.chat.id, user_Form)
+        user_Form = update_user(message.chat.id, user_Form) #type: ignore
+        user_Form = update_UForm(message.chat.id)
+
+    profile_Form : dict = get_Profile(user_Form)
+
+    max_tries : int = 300
+    while profile_Form.__contains__('error') :
+        get_Profile(user_Form)
+        if max_tries <= 0:
+            bot.send_message(
+                chat_id = message.chat.id,
+                text = 'No se han encontrado perfiles'
+            )
+            return
         
-    
-    if has_SAll(message) :
-        user_Form : dict = read_user(message.chat.id)
-        user_Form['seen_list'] = []
-        update_user(message.chat.id, user_Form)
-        
-    
-    
-    
-    
-    user_Form : dict = read_user(message.chat.id)
-    key : str = get_RPList(message)
+        max_tries -= 1
+
+    slist_akey(message, profile_Form['key'])
 
 
 
-    while key in user_Form['seen_list']:
-        key = get_RPList(message)
-
-
-    display_Profile : dict = get_RProfile(message, key)
-
-    add_KTSList(message, key)
-    add_LList(message)
-
-    if display_Profile['Photo'] != None:
+    if profile_Form['Photo'] != None:
         bot.send_photo(
             chat_id = message.chat.id, 
-            photo = display_Profile['Photo'],
+            photo = profile_Form['Photo'],
             caption = (
-                f'Nombre: {display_Profile['Name']}'
-                f'Edad: {display_Profile['Age']}'
-                f'Descripcion:\n**>>{display_Profile['Info']}'
-            )
+                f'Nombre: {profile_Form['Name']}\n'
+                f'Edad: {profile_Form['Age']}\n'
+                f'Descripcion:\n**>>{profile_Form['Info']}'
+            ),
+            reply_markup = new_KMarkup,
+            parse_mode = 'MarkdownV2'
             
         )
     
-    elif display_Profile['Photo'] == None:
+    elif profile_Form['Photo'] == None:
         bot.send_message(
             chat_id = message.chat.id, 
-            text = f'Nombre: {display_Profile['Name']} Edad: {display_Profile['Age']} \nDescripcion:\n**>>{display_Profile['Info']}',
+            text = f'Nombre: {profile_Form['Name']} Edad: {profile_Form['Age']} \nDescripcion:\n**>>{profile_Form['Info']}',
             reply_markup = new_KMarkup,
             parse_mode = 'MarkdownV2'
         )
 
-        
     @bot.callback_query_handler(lambda call : call.data.startswith('profiles_'))
     def handle_option(callback_Data : CallbackQuery) -> None:
         callback_Data.data = str(callback_Data.data).split('_')[1]
         user_Form : dict = read_user(callback_Data.message.chat.id)
-        print(callback_Data.data)
 
         if callback_Data.data == 'like':
-            handle_like(message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
+            handle_like(message, profile_Form['key'])
             
         elif callback_Data.data == 'message':
-            add_TLList(callback_Data.message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])#type:ignore
+            add_TLList(callback_Data.message, profile_Form['key'])#type:ignore
 
             get_MSG = bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Escriba a continuacion el mensaje que desea enviar')
-            handle_like(message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
-            bot.register_next_step_handler(get_MSG, handle_message, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
+            handle_like(message, profile_Form['key'])
+            bot.register_next_step_handler(get_MSG, handle_message, profile_Form['key'])
 
         elif callback_Data.data == 'report':
-            get_MSG = bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Describa su motivo de reporte a continuacion')
-            bot.register_next_step_handler(get_MSG, handle_report, user_Form['seen_list'][user_Form['seen_list'].__len__() - 1])
+            get_MSG = bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Describa el motivo de reporte a continuacion')
+            bot.register_next_step_handler(get_MSG, handle_report, profile_Form['key'])
 
         elif callback_Data.data == 'next':
             show_profiles(callback_Data.message)#type:ignore
@@ -232,7 +303,6 @@ def show_profiles(message : Message) -> None:
         elif callback_Data.data == 'back':
             bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Saliendo del modo busqueda')
             return
-
 
 
 def handle_like(message : Message, key : int) -> None:

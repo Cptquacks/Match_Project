@@ -14,17 +14,23 @@ def show_profile(chat_ID : int, user_ID : int) -> None:
     if read_user(user_ID)['Photo'] != None:
         bot.send_photo(
             chat_id = chat_ID,
-            photo = read_user(user_ID)['Photo']
+            photo = read_user(user_ID)['Photo'],
+            caption = (
+                f'Nombre:{read_user(user_ID)['Name']}\n'
+                f'Edad:{read_user(user_ID)['Age']}\n'
+                f'Informacion:\n{read_user(user_ID)['Info']}'
+            )
         )
 
-    bot.send_message(
-        chat_id = chat_ID,
-        text = (
-            f'Nombre:{read_user(user_ID)['Name']}\n'
-            f'Edad:{read_user(user_ID)['Age']}\n'
-            f'Informacion:\n{read_user(user_ID)['Info']}'
+    elif read_user(user_ID)['Photo'] == None:
+        bot.send_message(
+            chat_id = chat_ID,
+            text = (
+                f'Nombre:{read_user(user_ID)['Name']}\n'
+                f'Edad:{read_user(user_ID)['Age']}\n'
+                f'Informacion:\n{read_user(user_ID)['Info']}'
+            )
         )
-    )
     
 
 def show_settings(message : Message) -> None:

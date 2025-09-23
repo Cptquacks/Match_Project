@@ -47,6 +47,7 @@ def handle_search(message : Message) -> None:
     
 
     find_Utils.bot = bot
+    find_Utils.user_DB = user_DB.get_DB()
     find_Utils.show_profiles(message)
 
 @bot.message_handler(commands = ['profile'], chat_types = ['private'])
