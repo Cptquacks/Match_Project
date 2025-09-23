@@ -28,8 +28,6 @@ def show_profile(chat_ID : int, user_ID : int) -> None:
     
 
 def show_settings(message : Message) -> None:
-    user_Form = read_user(message.chat.id)
-
     n_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 3)
     n_KMarkup.row(
         InlineKeyboardButton('Nombre', callback_data = 'settings_Name'),
@@ -106,8 +104,6 @@ def show_settings(message : Message) -> None:
         elif callback_Data.data == 'back':
             bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id) #type:ignore
         
-        print(f"ID: {message.chat.id} CD: {callback_Data.data}")
-
 
 def change_key(message : Message, key : str) -> None:
     new_KMarkup : ReplyKeyboardMarkup = ReplyKeyboardMarkup(True)
@@ -135,6 +131,7 @@ def set_key(message : Message, key : str) -> None:
     
     update_user(message.chat.id, user_Form)
     bot.send_message(chat_id = message.chat.id, text = 'Sus cambios fueron realizados y estan pendientes a aprobacion')
+    show_settings(message)
     
 
 

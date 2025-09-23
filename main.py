@@ -33,10 +33,11 @@ def handle_start(message : Message) -> None:
     
 @bot.message_handler(commands = ['settings'], chat_types = ['private'])
 def handle_settings(message : Message) -> None:
-    if not user_DB.check_user(message.chat.id) or user_DB.check_ban(message.chat.id) :
+    if not user_DB.check_user(message.chat.id):
         return
     
     profile_Utils.bot = bot
+    profile_Utils.user_Form = user_DB.read_user(message.chat.id)
     profile_Utils.show_settings(message)
 
 @bot.message_handler(commands = ['search'], chat_types = ['private'])
@@ -79,7 +80,8 @@ def handle_GUFC(message : Message) -> None:
         return
     
     admin_Utils.bot = bot
-    admin_Utils.send_forms(message, admin_Utils.get_forms()) if admin_Utils.get_forms() != 0 else admin_Utils.get_forms()
+    admin_Utils.user_DB = user_DB.get_DB()
+    admin_Utils.get_forms(message)
 
 @bot.message_handler(commands = ['send_gmsg'], chat_types = ['private'])
 def handle_SGMC(message : Message) -> None:
@@ -87,6 +89,7 @@ def handle_SGMC(message : Message) -> None:
         return
     
     admin_Utils.bot = bot
+    admin_Utils.user_DB = user_DB.get_DB()
     admin_Utils.get_GMessage(message)
 
 
