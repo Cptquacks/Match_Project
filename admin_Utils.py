@@ -1,12 +1,12 @@
 import json, telebot
 
+from bot import bot
 from user_DB import get_DB, check_ban, read_user, update_user, delete_user
 
 from telebot.types import Message, CallbackQuery
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.apihelper import ApiException
 
-bot : telebot.TeleBot
 user_DB : dict
 
 
@@ -65,7 +65,7 @@ def send_forms(message : Message, user_ID : int) -> None:
         InlineKeyboardButton(text = 'Rechazar', callback_data = f'admin_dismiss')
     )
     new_KMarkup.add(
-        InlineKeyboardButton(text = 'Eliminar', callback_data = f'admin_delete')
+        InlineKeyboardButton(text = 'Eliminar', callback_data = f'admin_{user_ID}_delete')
     )
 
     if user_Form['Photo'] != None:
@@ -91,22 +91,31 @@ def send_forms(message : Message, user_ID : int) -> None:
             reply_markup = new_KMarkup
         )
     
-    @bot.callback_query_handler(lambda call : str(call.data).startswith('admin_'))
-    def handle_form(callback_Data : CallbackQuery) -> None:
-        callback_Data.data = str(callback_Data.data).split('_')[1]
-        bot.send_message(chat_id = message.chat.id, text = 'Enviando respuesta')
+@bot.callback_query_handler(lambda call : str(call.data).startswith('admin_'))
+def handle_form(callback_Data : CallbackQuery) -> None:
+    user_ID : int = int(str(callback_Data.data).split('_')[1])
+    user_Form : dict = read_user(user_ID)
+    callback_Data.data = str(callback_Data.data).split('_')[1]
+    
+    try:
+        order : str = str(callback_Data.data).split('_')[2]
+    except IndexError:
+        order : str = 'blank'
+    
+    bot.send_message(chat_id = callback_Data.message.chat.id, text = 'Enviando respuesta')
 
-        if callback_Data.data == f'{user_ID}':
-            user_Form.pop('Baned')
-            update_user(user_ID, user_Form)
+    if callback_Data.data == f'{user_ID}':
+        user_Form.pop('Baned')
+        update_user(user_ID, user_Form)
 
-            bot.send_message(chat_id = user_ID, text = 'Su perfil ha sido aprobado')
+        bot.send_message(chat_id = user_ID, text = 'Su perfil ha sido aprobado')
         
-        elif callback_Data.data == 'dismiss':
-            bot.send_message(chat_id = user_ID, text = 'Su perfil no ha sido aprobado, intente hacer cambios en el')
+    elif callback_Data.data == 'dismiss':
+        bot.send_message(chat_id = user_ID, text = 'Su perfil no ha sido aprobado, intente hacer cambios en el')
 
-        elif callback_Data.data == 'delete':
-            bot.send_message(chat_id = user_ID, text = 'Su perfil ha sido eliminado')
+    elif callback_Data.data == 'delete':
+        delete_user(user_ID)
+        bot.send_message(chat_id = user_ID, text = 'Su perfil ha sido eliminado')
 
 def handle_feedback(message : Message) -> None:
     for admin in get_admins():

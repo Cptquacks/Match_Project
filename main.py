@@ -1,6 +1,6 @@
 import os, telebot
 import user_DB, user_Form, admin_Utils, profile_Utils, find_Utils
-
+from bot import bot
 from telebot.types import Message
 from telebot.types import BotCommand
 
@@ -10,8 +10,6 @@ from telebot.types import KeyboardButton
 
 
 
-
-bot : telebot.TeleBot = telebot.TeleBot('6402990173:AAFty3Z7TuSzuDdjkmoModOn3J8kMAhFM-I')
 STD_F : str = 'MarkdownV2'
 HTM_F : str = 'HTML'
 
@@ -20,7 +18,6 @@ HTM_F : str = 'HTML'
 def handle_start(message : Message) -> None:
     if not user_DB.check_user(message.chat.id) and message.from_user.username != None : #type: ignore
         bot.send_message(chat_id = message.chat.id, text = f'Hola {message.chat.first_name} *bienvenido a UCItas*', parse_mode = STD_F)
-        user_Form.bot = bot
         user_Form.get_name(message)
         
         return
@@ -45,10 +42,8 @@ def handle_search(message : Message) -> None:
     if not user_DB.check_user(message.chat.id) or user_DB.check_ban(message.chat.id) :
         return
     
-
-    find_Utils.bot = bot
     find_Utils.user_DB = user_DB.get_DB()
-    find_Utils.show_profiles(message)
+    find_Utils.show_profiles(message.chat.id)#type: ignore
 
 @bot.message_handler(commands = ['profile'], chat_types = ['private'])
 def handle_profile(message : Message) -> None:
@@ -80,7 +75,6 @@ def handle_GUFC(message : Message) -> None:
     if not admin_Utils.check_admin(message.chat.id) :
         return
     
-    admin_Utils.bot = bot
     admin_Utils.user_DB = user_DB.get_DB()
     admin_Utils.get_forms(message)
 
@@ -89,7 +83,6 @@ def handle_SGMC(message : Message) -> None:
     if not admin_Utils.check_admin(message.chat.id):
         return
     
-    admin_Utils.bot = bot
     admin_Utils.user_DB = user_DB.get_DB()
     admin_Utils.get_GMessage(message)
 
