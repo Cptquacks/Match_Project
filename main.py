@@ -7,6 +7,7 @@ from telebot.types import BotCommand
 from telebot.types import ReplyKeyboardMarkup
 from telebot.types import ReplyKeyboardRemove
 from telebot.types import KeyboardButton
+from telebot.apihelper import ApiException
 
 
 
@@ -99,5 +100,10 @@ bot.set_my_commands([
 
 os.system('clear')
 print("DEBUG START")
-bot.infinity_polling()
+try:
+    if __name__ == '__main__':
+        bot.infinity_polling()
+        
+except ApiException:
+    pass
 print("DEBUG END")

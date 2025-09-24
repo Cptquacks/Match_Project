@@ -106,6 +106,8 @@ def get_picture(message : Message) -> None:
 
 def set_picture(message : Message) -> None:
     tar_MSG = bot.send_message(chat_id = message.chat.id, text = f'Espere un momento...', reply_markup = ReplyKeyboardRemove())
+    if new_user['Photo'] != None:
+        new_user['Photo'] = None
 
     try :
         if message.photo[0].file_id == None :# type: ignore
@@ -124,5 +126,4 @@ def set_picture(message : Message) -> None:
     bot.delete_message(chat_id = message.chat.id, message_id = tar_MSG.id)
     new_user['Username'] = message.from_user.username#type: ignore
     create_user(message.chat.id, new_user)#type: ignore
-    new_user = STD_UserForm
     bot.send_message(chat_id = message.chat.id, text = f'Su usuario ha sido creado bajo el nombre *{read_user(message.chat.id)['Name']}* y esta pendiente a aprobacion', parse_mode = 'MarkdownV2')
