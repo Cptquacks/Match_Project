@@ -11,24 +11,26 @@ bot : telebot.TeleBot
 user_Form : dict
 
 def show_profile(chat_ID : int, user_ID : int) -> None:
-    if read_user(user_ID)['Photo'] != None:
+    user_Form : dict = read_user(user_ID)
+
+    if user_Form['Photo'] != None:
         bot.send_photo(
             chat_id = chat_ID,
-            photo = read_user(user_ID)['Photo'],
+            photo = user_Form['Photo'],
             caption = (
-                f'Nombre:{read_user(user_ID)['Name']}\n'
-                f'Edad:{read_user(user_ID)['Age']}\n'
-                f'Informacion:\n{read_user(user_ID)['Info']}'
+                f'Nombre:{user_Form['Name']}\n'
+                f'Edad:{user_Form['Age']}\n'
+                f'Informacion:\n{user_Form['Info']}'
             )
         )
 
-    elif read_user(user_ID)['Photo'] == None:
+    elif user_Form['Photo'] == None:
         bot.send_message(
             chat_id = chat_ID,
             text = (
-                f'Nombre:{read_user(user_ID)['Name']}\n'
-                f'Edad:{read_user(user_ID)['Age']}\n'
-                f'Informacion:\n{read_user(user_ID)['Info']}'
+                f'Nombre:{user_Form['Name']}\n'
+                f'Edad:{user_Form['Age']}\n'
+                f'Informacion:\n{user_Form['Info']}'
             )
         )
     
