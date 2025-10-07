@@ -103,6 +103,6 @@ try:
     if __name__ == '__main__':
         bot.infinity_polling()
         
-except ApiException:
+except TimeoutError:
     pass
 print("DEBUG END")
