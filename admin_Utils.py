@@ -116,6 +116,8 @@ def handle_form(callback_Data : CallbackQuery) -> None:
     elif callback_Data.data == 'delete':
         delete_user(user_ID)
         bot.send_message(chat_id = user_ID, text = 'Su perfil ha sido eliminado')
+    
+    bot.delete_message(chat_id = callback_Data.message.chat.id, message_id = callback_Data.message.id) #type: ignore
 
 def handle_feedback(message : Message) -> None:
     for admin in get_admins():
