@@ -132,7 +132,7 @@ def set_key(message : Message, key : str) -> None:
         user_Form[key] = message.text
     
     update_user(message.chat.id, user_Form)
-    bot.send_message(chat_id = message.chat.id, text = 'Sus cambios fueron realizados y estan pendientes a aprobacion')
+    bot.send_message(chat_id = message.chat.id, text = 'Los cambios han sido realizados')
     show_settings(message)
     
 
