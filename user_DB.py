@@ -1,6 +1,5 @@
 import json
 STD_UserForm : dict = {
-    "Baned" : True,
     "Photo" : None,
     "Name" : None,
     "Age" : None,

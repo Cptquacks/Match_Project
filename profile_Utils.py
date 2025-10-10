@@ -90,12 +90,6 @@ def show_settings(message : Message) -> None:
         print(f'Callback for /settings \n\tID: {callback_Data.message.chat.id} \n\tKEY: {callback_Data.data}')
 
 
-
-        if user_Form.__contains__(callback_Data.data) and not user_Form.__contains__('Baned'):
-            user_Form['Baned'] = True
-            update_user(callback_Data.message.chat.id, user_Form)
-
-
         if callback_Data.data == 'Gender':
             change_gender(callback_Data.message) #type: ignore
 
