@@ -113,7 +113,7 @@ def show_profiles(user_ID : int) -> None:
     )
     new_KMarkup.row(
         InlineKeyboardButton(text = '💤', callback_data = f'profiles_next'),
-        InlineKeyboardButton(text = '⚠️', callback_data = 'fprofiles_report')
+        InlineKeyboardButton(text = '⚠️', callback_data = f'profiles_report')
     )
     new_KMarkup.add(
         InlineKeyboardButton(text = 'Atras', callback_data = 'profiles_back')
@@ -153,7 +153,7 @@ def show_profiles(user_ID : int) -> None:
 @bot.callback_query_handler(lambda call : str(call.data).startswith('profiles_'))
 def handle_request(callback_Data : CallbackQuery) -> None:
     data : str = str(callback_Data.data).split('_')[1]
-        
+    print(f'\t{data}')
     if data == 'like':
         key : str = str(callback_Data.data).split('_')[2]
         handle_like(
@@ -177,7 +177,14 @@ def handle_request(callback_Data : CallbackQuery) -> None:
         )#type: ignore
     
     elif data == 'report':
-        pass
+        get_MSG : Message = bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Escriba el motivo de su reporte')
+        bot.register_next_step_handler(
+            get_MSG,
+            handle_report,
+            slist_glast(read_user(
+                callback_Data.message.chat.id
+            ))
+        )
 
 def handle_like(message : Message, key : int) -> None:
     user_ID : int = message.chat.id
@@ -248,6 +255,6 @@ def handle_MResponse(callback_Data : CallbackQuery) -> None:
 
 def handle_report(message : Message, key : int) -> None:
     for admin in get_admins() :
-        bot.send_message(chat_id = admin, text = f'{get_user(key)['Name']} ha sido reportado por el usuario {get_user(message.chat.id)['Name']}')
+        bot.send_message(chat_id = admin, text = f'{get_user(key)['Name']} ha sido reportado por el usuario {get_user(message.chat.id)['Name']}\nMotivo de reporte:\n{message.text}')
 
-    bot.send_message(chat_id = key, text = 'Has sido reportado con la administracion del bot')
+    bot.send_message(chat_id = key, text = f'Has sido reportado con la administracion del bot\nMotivo de reporte:\n{message.text}')
