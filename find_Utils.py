@@ -165,6 +165,19 @@ def handle_request(callback_Data : CallbackQuery) -> None:
 
     elif data == 'next':
         show_profiles(callback_Data.message.chat.id)
+    
+    elif data == 'message':
+        get_MSG : Message = bot.send_message(chat_id = callback_Data.message.chat.id, text = f'Envie su mensaje a continuacion')
+        bot.register_next_step_handler(
+            get_MSG,
+            handle_message, 
+            slist_glast(read_user(
+                callback_Data.message.chat.id
+            ))
+        )#type: ignore
+    
+    elif data == 'report':
+        pass
 
 def handle_like(message : Message, key : int) -> None:
     user_ID : int = message.chat.id
@@ -177,7 +190,6 @@ def handle_like(message : Message, key : int) -> None:
     )
 
 
-    profile_Utils.bot = bot
     profile_Utils.show_profile(key, user_ID)
     bot.send_message(chat_id = key, text = f'Le has gustado al usuario {read_user(user_ID)['Name']}', reply_markup = new_KMarkup)
     
@@ -200,3 +212,42 @@ def handle_reponse(callback_Data : CallbackQuery) -> None:
         pass
         
     show_profiles(target_ID)
+
+def handle_message(message : Message, key : int) -> None:
+    user_ID : int = message.chat.id
+    show_profiles(user_ID)
+
+    new_KMarkup : InlineKeyboardMarkup = InlineKeyboardMarkup(row_width = 2)
+    new_KMarkup.row(
+        InlineKeyboardButton('❤️', callback_data = f'message-like-{message.chat.id}'),#type: ignore
+        InlineKeyboardButton('💤', callback_data = f'message-next')
+    )
+
+    profile_Utils.show_profile(key, user_ID)
+    bot.send_message(chat_id = key, text = f'{read_user(user_ID)['Name']}:\n *_{message.text}_* ', reply_markup = new_KMarkup)
+
+@bot.callback_query_handler(lambda call : str(call.data).startswith('request-'))
+def handle_MResponse(callback_Data : CallbackQuery) -> None:
+    order = str(callback_Data.data).split('-')[1]
+
+    target_ID : int = callback_Data.message.chat.id
+
+    if order == 'like':
+        request_ID : int = int(str(callback_Data.data).split('-')[2])
+
+ 
+
+        bot.send_message(chat_id = request_ID, text = f'Has hecho un match con {read_user(target_ID)['Name']} \nUsuario:@{read_user(target_ID)['Username']}') #type:ignore
+        bot.send_message(chat_id = target_ID, text = f'Has hecho un match con {read_user(request_ID)['Name']} \nUsuario:@{read_user(request_ID)['Username']}') #type:ignore
+            
+
+    elif order == 'next':
+        pass
+
+    show_profiles(target_ID)
+
+def handle_report(message : Message, key : int) -> None:
+    for admin in get_admins() :
+        bot.send_message(chat_id = admin, text = f'{get_user(key)['Name']} ha sido reportado por el usuario {get_user(message.chat.id)['Name']}')
+
+    bot.send_message(chat_id = key, text = 'Has sido reportado con la administracion del bot')
